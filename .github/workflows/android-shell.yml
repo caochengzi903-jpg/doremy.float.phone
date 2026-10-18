@@ -14,7 +14,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 可选签名：仓库 Secrets 配置了 SHELL_KEYSTORE_BASE64 等四项时产出已签名 release
     env:
       SHELL_KEYSTORE_BASE64: ${{ secrets.SHELL_KEYSTORE_BASE64 }}
       SHELL_KEYSTORE_PASSWORD: ${{ secrets.SHELL_KEYSTORE_PASSWORD }}
@@ -29,8 +28,6 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      # Gradle 版本必须与根 build.gradle 里的 AGP 匹配：AGP 8.9 要求
-      # Gradle 8.11.1 及以上。这两处是一对，改一处不改另一处必然失败。
       - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: "8.11.1"
@@ -38,12 +35,14 @@ jobs:
       - name: Decode keystore (optional)
         if: ${{ env.SHELL_KEYSTORE_BASE64 != '' }}
         run: |
-          printenv SHELL_KEYSTORE_BASE64| base64 -d > /tmp/shell.keystore
+          printenv SHELL_KEYSTORE_BASE64 | base64 -d > /tmp/shell.keystore
           echo "SHELL_KEYSTORE_FILE=/tmp/shell.keystore" >> "$GITHUB_ENV"
-          - name: Check keystore
-           run: |
+
+      - name: Check keystore
+        run: |
           echo "BASE64长度: ${#SHELL_KEYSTORE_BASE64}"
           ls -la /tmp/shell.keystore
+
       - name: Build APKs
         run: gradle -p android-shell assembleDebug assembleRelease
 
