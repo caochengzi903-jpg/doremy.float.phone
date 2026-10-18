@@ -32,15 +32,15 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Decode keystore (optional)
+      - name: Decode keystore
         if: ${{ env.SHELL_KEYSTORE_BASE64 != '' }}
         run: |
-          printenv SHELL_KEYSTORE_BASE64 | base64 -d > /tmp/shell.keystore
+          printenv SHELL_KEYSTORE_BASE64 | tr -d '\n' | base64 -d > /tmp/shell.keystore
           echo "SHELL_KEYSTORE_FILE=/tmp/shell.keystore" >> "$GITHUB_ENV"
 
       - name: Check keystore
         run: |
-          echo "BASE64长度: ${#SHELL_KEYSTORE_BASE64}"
+          echo "密钥库大小: $(stat -c%s /tmp/shell.keystore) 字节"
           ls -la /tmp/shell.keystore
 
       - name: Build APKs
