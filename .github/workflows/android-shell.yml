@@ -40,7 +40,10 @@ jobs:
         run: |
           printenv SHELL_KEYSTORE_BASE64| base64 -d > /tmp/shell.keystore
           echo "SHELL_KEYSTORE_FILE=/tmp/shell.keystore" >> "$GITHUB_ENV"
-
+          - name: Check keystore
+           run: |
+          echo "BASE64长度: ${#SHELL_KEYSTORE_BASE64}"
+          ls -la /tmp/shell.keystore
       - name: Build APKs
         run: gradle -p android-shell assembleDebug assembleRelease
 
